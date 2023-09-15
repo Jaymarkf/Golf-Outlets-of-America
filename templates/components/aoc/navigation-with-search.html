@@ -1,0 +1,39 @@
+<div class="container-navigation-search">
+   <div class="container-nav-logo">
+    {{#if page_type '===' 'default'}}
+        <h1 class="header-logo header-logo--{{theme_settings.logo-position}}">
+            {{> components/common/store-logo}}
+        </h1>
+    {{else}}
+        <div class="header-logo header-logo--{{theme_settings.logo-position}}">
+            {{> components/common/store-logo}}
+        </div>
+    {{/if}}
+   </div>
+   <div class="container-nav-search">
+        {{> components/common/quick-search name='nav-quick-search' custom_search='true'}}
+   </div>
+   <div class="container-nav-cart">
+                <div class="container-call-us">
+                        <span id="cus">CALL US NOW</span>
+                        <a href="tel:+1(800) 603 0004">+1(800) 603 0004</a>
+                </div>
+               <div class="container-cart-icon">
+                        <a class="navUser-action"
+                        data-cart-preview
+                        data-dropdown="cart-preview-dropdown"
+                        data-options="align:right"
+                        href="{{urls.cart}}"
+                        aria-label="{{lang 'cart.nav_aria_label'}}"
+                        >
+                                <span class="navUser-item-cartLabel">
+                                        <svg class="cart-svg">
+                                                <use xlink:href="#icon-cart-svg"></use>
+                                        </svg>
+                                </span>
+                                <span class="countPill cart-quantity"></span>
+                        </a>
+                        <div class="dropdown-menu" id="cart-preview-dropdown" data-dropdown-content aria-hidden="true"></div>
+               </div>
+   </div>
+</div>

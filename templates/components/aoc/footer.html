@@ -1,0 +1,143 @@
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+        /* search script */
+        const myaccount = document.querySelector('.my-account');
+        myaccount.addEventListener('click',(e)=>{
+                document.querySelector('.container-content-account').classList.toggle('d-none');
+        });
+
+        const targetNode = document.body;
+        const config = { attributes: false, childList: true, subtree: true };
+
+        const observer = new MutationObserver(function(mutationsList, observer) {
+        for(let mutation of mutationsList) {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        for (let addedNode of mutation.addedNodes) {
+                if (addedNode.nodeType === Node.ELEMENT_NODE && addedNode.matches('[data-drop-down-close]')) {
+                     document.querySelector('[data-drop-down-close]').addEventListener('click',(x)=>{
+                        document.querySelector('section.quickSearchResults').innerHTML = '';
+                     });
+                }
+        }
+        }
+        }
+        });
+
+        observer.observe(targetNode, config);
+        /* end of search script */
+
+        /* for navigation responsive */
+   
+        function NavigationDivide(x) {
+                if (x.matches) { // If media query matches
+                     const navs = document.querySelectorAll('ul.navPages-list:not(.navPages-list--user) li.navPages-item')
+                     const count_navs = navs.length;
+                     navs.forEach((el)=>{
+                        el.style.width = `calc(100% / ${count_navs} )`;
+                     });
+                } 
+        }
+
+        var x = window.matchMedia("(min-width: 801px)")
+        NavigationDivide(x) // Call listener function at run time
+        x.addListener(NavigationDivide) // Attach listener function on state changes
+        /*end of navigation responsive */
+
+        //show discount price for each carousel card
+        var card = document.querySelectorAll('article.card');
+        card.forEach((el)=>{
+              var wt = el.querySelector('.card-body .card-text[data-test-info-type="price"] [data-product-non-sale-price-without-tax]');
+              var orig_price = el.querySelector('.card-body .card-text[data-test-info-type="price"] [data-product-price-without-tax]');
+              var w_tax;
+              var discount;
+              if(wt.textContent.trim() !== ''){
+                        w_tax = wt.textContent.trim();
+                        w_tax = w_tax.replace('$','');
+                        orig_price = orig_price.textContent.replace('$','').trim();
+                        discount = (((w_tax - orig_price) / w_tax) * 100).toFixed(2); 
+                        var el_discount = document.createElement('div');
+                        el_discount.className = 'discount-badge-circle';
+                        el_discount.textContent = '-' + discount + '%';
+                        el.querySelector('figure.card-figure').prepend(el_discount);
+              }
+        });
+
+
+
+});
+</script>
+{{#if template_file '==' 'pages/product'}}
+        <script>
+                document.addEventListener('DOMContentLoaded',()=>{
+                        var rrp = document.querySelector('.container-product-options .productView-price .price-section.price-section--withoutTax.rrp-price--withoutTax');
+                        var was = document.querySelector('.container-product-options .productView-price .price-section.price-section--withoutTax.non-sale-price--withoutTax');
+                        var parentContainer = document.createElement('div');
+                        parentContainer.className = 'parent-container-discounter';
+
+                        if (rrp) {
+                        parentContainer.appendChild(rrp.cloneNode(true));
+                        }
+
+                        if (was) {
+                        parentContainer.appendChild(was.cloneNode(true));
+                        }
+                        // Replace the original elements with the new parent container
+                        if (rrp && rrp.parentNode) {
+                        rrp.parentNode.replaceChild(parentContainer, rrp);
+                        }
+                        if (was && was.parentNode) {
+                        was.parentNode.replaceChild(parentContainer, was);
+                        } 
+                        document.querySelector('.price-section.price-section--withoutTax span.price-now-label').innerText = 'DEAL PRICE';
+                        document.querySelector('.price-section.price-section--withoutTax.rrp-price--withoutTax span:not([data-product-rrp-price-without-tax])').innerText = 'RRP ';
+                        document.querySelector('.price-section.price-section--withoutTax.non-sale-price--withoutTax span:not([data-product-non-sale-price-without-tax])').innerText = 'WAS ';
+                
+                        const arrow_down = document.querySelector('i.arrow-down');
+                        const spec_container = document.querySelector('.container-specification');
+                        arrow_down.addEventListener('click',()=>{
+                                spec_container.classList.toggle('toggle-height');
+                                arrow_down.classList.toggle('toggle-rotate');
+                        });
+                        
+
+                        /* show the discount price dynamically */
+                        {{#if product.price.rrp_without_tax}}
+                                const rrp_product = '{{product.price.rrp_without_tax.value}}';
+                                const deal_price = '{{product.price.without_tax.value}}';
+                                var discount_price = ((rrp_product - deal_price) / rrp_product) * 100;
+                                discount_price = discount_price.toFixed(2);
+                                const image_container = document.querySelector('figure.productView-image[data-image-gallery-main]');
+                                const badge_container = document.createElement('div');
+                                const badge_count = document.createElement('span');
+                                
+                                badge_container.classList.add('badge-discount-container');
+                                badge_count.classList.add('badge-discount');
+                                badge_container.append(badge_count);
+                                image_container.append(badge_container);
+
+                                //add the label in badge count
+                                badge_count.innerText = '-' + discount_price + '%';
+                        {{/if}}
+                
+                        //show instock in first load
+                        var instock = BCData.product_attributes.instock;
+                        if(!instock){
+                        var e =  document.querySelector('span.badge-instock').innerText = 'OUT OF STOCK';
+                                        document.querySelector('span.badge-instock').style.backgroundColor = 'red';
+                                        document.querySelector('span.badge-instock').style.color = 'white';
+                        }else{
+                                document.querySelector('span.badge-instock').innerText = 'IN STOCK';
+                        }
+                });
+        </script>
+        <style>
+                .badge-discount-container{
+                border-top:55px solid red !important;
+                border-bottom:55px solid transparent !important;
+                border-right:55px solid red !important;
+                border-left:55px solid transparent !important;  
+                }
+        </style>
+{{/if}}
+
+

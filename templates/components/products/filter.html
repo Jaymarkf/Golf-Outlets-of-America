@@ -1,0 +1,10 @@
+<form class="actionBar" method="get" data-sort-by="product">
+    {{> components/category/sort-box sort=sort}}
+    <a class="navUser-action navUser-item--compare"
+               href="{{urls.compare}}"
+               data-compare-nav
+               aria-label="{{lang 'common.compare'}}"
+            >
+                {{lang 'common.compare'}} <span class="countPill countPill--positive countPill--alt"></span>
+    </a>
+</form>

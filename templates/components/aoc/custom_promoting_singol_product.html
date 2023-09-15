@@ -1,0 +1,184 @@
+<div class="container-single-product" singol_product promote_data_product_id="{{theme_settings.homepage_promote_singol_product}}">
+        <div class="container-loader">
+                <div class="container-thumbnail-loader">
+                        <div class="col-container-thumbnail"></div>
+                        <div class="col-container-thumbnail"></div>
+                        <div class="col-container-thumbnail"></div>
+                </div>
+                <div class="container-main-image-loader"></div>
+                <div class="container-description-loader">
+                        <div class="col-desc-loader _1"></div>
+                        <div class="col-desc-loader _2"></div>
+                        <div class="col-desc-loader _3"></div>
+                        <div class="col-desc-loader _4"></div>
+                </div>
+        </div>
+        <div class="container-thumbnail" style="display:none;">
+        </div>
+        <div class="container-main-product-image" style="display:none;">
+                <div class="badge-discount-container">
+                        <span class="badge-discount"></span>
+                </div>
+        </div>
+        <div class="container-product-description" style="display:none;">
+                <div class="you-save-tag-container">
+                       <span><svg><use xlink:href="#icon-tag-solid"></use></svg>You Save <span id="saving_price"></span> off RRP</span>
+                </div>
+                <div class="container-product-title">
+                       <span></span>
+                </div>
+                <div class="container-product-star-review">
+                </div>
+                <div class="container--price">
+                      <div class="deal-price-container">
+                        <span id="deal_price">DEAL PRICE</span>
+                        <span id="deal_price_money"></span>
+                      </div>
+                      <div class="rrp-was-container">
+                                <span id="rrp"><span id="rrp-label">RRP</span> <span id="rrp_price"></span></span>
+                                <div id="was"><span id="was-label">WAS</span><span id="was_price"></span></div>
+                      </div>
+                </div>
+                <div class="cta"><a href="#" cta-purchase>PURCHASE IT NOW</a></div>
+                <div class="quick-specs-container">
+                        <span class="quick-specs-heading">DESCRIPTION</span>
+                        <div class="description-contents">
+                        </div>
+                </div>
+        </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script>
+        document.addEventListener("DOMContentLoaded",() => {
+                const prodId = document.querySelector('[singol_product]').getAttribute('promote_data_product_id');
+                const xhr = new XMLHttpRequest();
+                xhr.open("GET", `/products.php?productId=${prodId}`, true);
+                xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                        // Parse the HTML response
+                        const parser = new DOMParser();
+                        const htmlDoc = parser.parseFromString(xhr.responseText, "text/html");
+                        const thumbnailList = htmlDoc.querySelector("ul.productView-thumbnails");
+                        thumbnailList.removeAttribute('data-slick');
+                        const productImage = htmlDoc.querySelector('.productView-img-container img');
+                        const product_title = htmlDoc.querySelector('h1.productView-title').innerText;
+                        const now_price = htmlDoc.querySelector('.price-section.price-section--withoutTax span[data-product-price-without-tax]').innerText;
+                        const was = htmlDoc.querySelector('.price-section.price-section--withoutTax.non-sale-price--withoutTax span[data-product-non-sale-price-without-tax]').innerText;
+                        const rrp = htmlDoc.querySelector('.price-section.price-section--withoutTax.rrp-price--withoutTax span[data-product-rrp-price-without-tax]').innerText;
+                        const product_url = htmlDoc.querySelector('meta[property="og:url"]').getAttribute('content');
+                        const product_save_price =  htmlDoc.querySelector('[data-product-price-saved]').innerText;
+                        const product_description = htmlDoc.querySelector('#tab-description');
+                        const review_star = htmlDoc.querySelector('.productView-rating span[role="img"]');
+                        var review_label = htmlDoc.querySelector('.productView-rating > span:nth-child(2)');
+                        if(review_label){
+                                console.log(review_label);
+                        }else{
+                                review_label = htmlDoc.querySelector('#productReview_link');
+                        }
+
+                        
+                                document.querySelector('[cta-purchase]').setAttribute("href",product_url);
+                                if (thumbnailList) {
+                                        document.querySelector('.container-thumbnail').appendChild(thumbnailList);
+                                        $('ul.productView-thumbnails').slick({
+                                                vertical:false,
+                                                slidesToShow:3,
+                                                slidesToScroll:1,
+                                                mobileFirst:true,
+                                                responsive:[
+                                                        {
+                                                                breakpoint :800,
+                                                                settings:{
+                                                                        vertical:true,
+                                                                }
+                                                                        
+                                                        }
+                                                ]
+                                        });
+
+                                        document.querySelector('.container-product-description').style.display = 'block';
+                                        document.querySelector('.container-main-product-image').style.display = 'block';
+                                        document.querySelector('.container-thumbnail').style.display = 'block';
+                                        document.querySelector('.container-loader').remove();
+
+                                }
+                                document.querySelector('.container-product-star-review').append(review_star);
+                                document.querySelector('.container-product-star-review').append(review_label);
+                                if(productImage){
+                                        document.querySelector('.container-main-product-image').appendChild(productImage);
+                                }
+                                if(product_title){
+                                        document.querySelector('.container-product-title span').innerText = product_title;
+                                }
+                                if(now_price){
+                                        document.querySelector('#deal_price_money').innerText = now_price;
+                                }
+                                
+                                if(was.trim() !== ''){
+                                        document.querySelector('#was_price').innerText = was;
+                                }else{
+                                       document.querySelector('#was').style.display = 'none';
+                                }
+                                if(rrp.trim() !== ''){
+                                        document.querySelector('#rrp_price').innerText = rrp;
+                                        var discount_price = document.querySelector('#rrp_price').innerText;
+                                        var deal_price = document.querySelector('#deal_price_money').innerText;
+                                        
+                                        discount_price = discount_price.replace('$','');
+                                        deal_price = deal_price.replace('$','');
+                                        var discount = ((discount_price - deal_price ) / discount_price) * 100;
+                                        discount = parseInt(discount);
+                                        document.querySelector('.badge-discount').innerText = '-'+discount+'%';
+                                        var d = document.querySelector('.badge-discount');
+                                        var c = document.querySelector('.badge-discount-container');
+                                        c.style.cssText = `backgroundColor: 'transparent';
+                                                        color: white;
+                                                        height: 0;
+                                                        lineHeight: 0;
+                                                        width: 0;
+                                                        display: block;
+                                                        border-top: 40px solid #ff0000;
+                                                        border-bottom: 40px solid transparent;
+                                                        border-right: 40px solid red;
+                                                        border-left: 40px solid transparent;
+                                                        position: absolute;
+                                                        right: 0;
+                                                        display: flex;`;
+                                        d.style.cssText = `display: block;
+                                                        position: relative;
+                                                        top: -29px;
+                                                        right: 2px;
+                                                        font-size: 16px;
+                                                        font-weight: bold;
+                                                        font-family: Oswald;`;
+                                
+
+                                }else{
+                                        document.querySelector('#rrp').style.display = 'none';
+                                }
+                                if(product_save_price.trim() !== ''){
+                                        document.querySelector('#saving_price').innerText = product_save_price;
+                                }else{
+                                        document.querySelector('.you-save-tag-container').style.display = 'none';
+                                }
+                                if(product_description){
+                                        document.querySelector('.description-contents').appendChild(product_description);
+                                }else{
+                                        document.querySelector('.quick-specs-container').style.display = 'none';
+                                }
+                                
+                                
+                        }
+                }
+                };
+                xhr.send();
+
+        });
+</script>
+<style>
+        .icon--ratingFull svg{
+                fill:#8CC418;
+        }
+</style>
