@@ -371,6 +371,9 @@ main.body .container{
         .container-thumbnail{
                 width:100%;
                 max-width:100px;
+                position:sticky;
+                top:30px;
+                inset:0;
                 @media(max-width:548px){
                         max-width:100% !important;
                 }
@@ -410,6 +413,9 @@ main.body .container{
                 }
         }
         .container-main-product-image{
+                position:sticky;
+                top:30px;
+                inset:0;
                 max-width:530px;
                 width:100%;
                 margin-left:10px;
